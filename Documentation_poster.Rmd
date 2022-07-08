@@ -1,0 +1,720 @@
+---
+title: Propensity score (an application to COVID-19 maternal mortality data)
+date: "21/06/2022"
+header-includes:
+  - \usepackage{float}
+  - \floatplacement{figure}{H} 
+output:   
+  pdf_document:
+    keep_tex: yes
+  word_document: default
+  html_document:
+    self_contained: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# About the database and R packages used 
+
+This research studies some demographic, clinical and mortality variables of COVID-19 pandemic aiming to compare pregnant and non-pregnant childbearing age (10 to 49 years) women living in Espírito Santo/BR. The search was limited to the first notified case of COVID-19 in February 2020 until April, 2021 because after this month the vaccination of pregnant and postpartum women started in Brazil. The dataset were obtained on July 19, 2021, on the site https://coronavirus.es.gov.br/painel-covid-19-es. The data are loaded next.
+
+The data are analyzed using the free-software R (https://www.R-project.org) in version 4.0.3. Next, we present and load the libraries used in the data analysis process.
+ 
+```{r pacotes,echo=TRUE,message=FALSE,warning =FALSE,error=FALSE,results='hide'}
+loadlibrary <- function(x) {
+  if (!require(x, character.only = TRUE)) {
+    install.packages(x, dependencies = T)
+    if (!require(x, character.only = TRUE))
+      stop("Package not found")
+  }
+}
+
+packages <-
+  c(
+    "dplyr",
+    "lubridate",
+    "readr",
+    "readxl",
+    "ggplot2",
+    "kableExtra",
+    "tables",
+    "questionr",
+    "car",
+    "data.table",
+    "magrittr",
+    "readxl",
+    "summarytools",
+    "modelsummary",
+    "zoo", 
+    "strex",
+    "WeightIt", 
+    "MatchIt",
+    "cobalt",
+    "RItools"
+  )
+lapply(packages, loadlibrary)
+
+### Data of Espírito Santo/BR #############
+dados <- read_delim("MICRODADOS-19-07-2021.csv", 
+                         ";", quote = "\\\"", escape_double = FALSE, 
+                         locale = locale(encoding = "ISO-8859-1"), 
+                         trim_ws = TRUE)
+```
+
+```{r,echo=TRUE, eval=TRUE, message=FALSE,warning =FALSE,error=FALSE,results='hide'}
+#functions for summary measures
+MEAN <- function(x) mean(x, na.rm = TRUE)
+MEDIAN <- function(x) median(x, na.rm = TRUE)
+SDev <- function(x) sd(x, na.rm = TRUE)
+MIN <- function(x) base::min(x, na.rm = TRUE)
+MAX <- function(x) base::max(x, na.rm = TRUE)
+q25 <- function(x) stats::quantile(x, p=0.25, na.rm=TRUE)
+q75 <- function(x) stats::quantile(x, p=0.75, na.rm=TRUE)
+IQR <- function(x) round(q75(x)-q25(x), 2)
+n <- function(x)  sum(!is.na(x))
+```
+
+There are `r dim(dados)[1]` observations in the database. Each line in this dataset corresponds to a data from February,2020 to July, 2021. Below, we present the variables considered in the study for each data.
+ 
+
+```{r, echo=FALSE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+memory.limit(999999)
+```
+
+# Case selection
+
+First, we select only confirmed cases. 
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+dados <- dados %>%
+  mutate(
+    Classification = case_when(
+      Classificacao == "Confirmados"  ~ "Confirmed", #confirmed cases of COVID-19
+      Classificacao == "Descartados"  ~ "Discarded", #discarted cases of COVID-19
+      Classificacao == "Suspeito"  ~ "Suspect", #suspected cases of COVID-19
+      TRUE ~ NA_character_
+    )
+  )
+
+
+questionr::freq(
+  dados$Classification,
+  cum = FALSE,
+  total = TRUE,
+  na.last = TRUE,
+  valid = FALSE
+) %>%
+  kable(caption = "Frequency table of classification", 
+        digits = 2)  %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+# Filtering only confirmed cases of COVID-19
+dados1 <- dados %>% 
+  filter(Classification == 'Confirmed')
+```
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+dados1 <- dados1 %>%
+  mutate(
+    PCR_results = case_when(
+      ResultadoRT_PCR == "Inconclusivo"  ~ "Inconclusive", 
+      ResultadoRT_PCR == "Não Informado"  ~ "Not informed ", 
+      ResultadoRT_PCR == "Negativo"  ~ "Negative", 
+      ResultadoRT_PCR == "Positivo"  ~ "Positive", 
+      TRUE ~ NA_character_
+    )
+  )
+
+questionr::freq(
+  dados1$PCR_results,
+  cum = FALSE,
+  total = TRUE,
+  na.last = FALSE,
+  valid = FALSE
+) %>%
+  kable(caption = "Results of PCR test of the confirmed cases", 
+        digits = 2)  %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+dados1 <- dados1 %>%
+  mutate(
+    rapid_tests = case_when(
+      TipoTesteRapido == "Ignorado"  ~ "Unknown", 
+      TipoTesteRapido == "Não Informado"  ~ "Not informed", 
+      TipoTesteRapido == "Teste rápido Antígeno"  ~ "Antigen test", 
+      TipoTesteRapido == "Teste rápido IgM/IgG"  ~ "IgM/IgG", 
+      TRUE ~ NA_character_
+    )
+  )
+
+questionr::freq(
+  dados1$rapid_tests,
+  cum = FALSE,
+  total = TRUE,
+  na.last = FALSE,
+  valid = FALSE
+) %>%
+  kable(caption = "Types of rapid tests of the confirmed cases", 
+        digits = 2)  %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+dados1 <- dados1 %>%
+  mutate(
+    rapid_results = case_when(
+      ResultadoTesteRapido == "Inconclusivo"  ~ "Inconclusive", 
+      ResultadoTesteRapido == "Não Informado"  ~ "Not informed ", 
+      ResultadoTesteRapido == "Negativo"  ~ "Negative", 
+      ResultadoTesteRapido == "Positivo"  ~ "Positive", 
+      TRUE ~ NA_character_
+    )
+  )
+
+questionr::freq(
+  dados1$rapid_results,
+  cum = FALSE,
+  total = TRUE,
+  na.last = FALSE,
+  valid = FALSE
+) %>%
+  kable(caption = "Results of rapid tests of the confirmed cases", 
+        digits = 2)  %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+In this search, we consider only observations with positive PCR or positive antigen test for COVID-19.
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+# Filtering only positive cases of COVID-19 detected by PCR or antigen test
+dados1_1 <- dados1 %>% 
+  filter(PCR_results == 'Positive' | (rapid_tests == "Antigen test" & rapid_results == 'Positive'))
+```
+
+Considering only people with confirmed cases of COVID-19 by PCR or antigen test, the following table presents the distribution of the sex variable.  
+ 
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+dados1_1<- dados1_1 %>%
+  mutate(
+    Sex = case_when(
+      Sexo == "F"  ~ "Female", 
+      Sexo == "M"  ~ "Male", 
+      Sexo == "I"  ~ "Not informed", 
+      TRUE ~ NA_character_
+    )
+  )
+
+questionr::freq(
+  dados1_1$Sex,
+  cum = FALSE,
+  total = TRUE,
+  na.last = FALSE,
+  valid = FALSE
+) %>%
+  kable(caption = "Frequency table of sex variable", 
+        digits = 2)  %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+The next selection consists of selecting females cases:
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+#Filtrando só as pessoas de sexo feminino
+dados2 <- dados1_1 %>% 
+  filter(Sex == 'Female')
+```
+
+The next step is to identify pregnant and postpartum people (variable classi_gesta_puerp) in the female group. 
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+#Creating the variable pregnant (any trimester or ignored gestational age) and non-pregnant
+dados2 <- dados2 %>% 
+  mutate(pregnant_SN = case_when(
+    Gestante == "1º trimeste" ~ "yes", 
+    Gestante == "2º trimeste" ~ "yes", 
+    Gestante == "3º trimeste" ~ "yes", 
+    Gestante == "Idade gestacional ignorada" ~ "yes", 
+    Gestante == "Não" ~ "no",
+    TRUE ~ NA_character_
+  ))
+```
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+questionr::freq(
+  dados2$pregnant_SN ,
+  cum = FALSE,
+  total = TRUE,
+  na.last = FALSE,
+  valid = FALSE
+) %>%
+  kable(caption = "Frequency table of pregnancy variable", 
+        digits = 2)  %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+Now, we only select women who are pregnant or not. 
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+#Filtering only the cases that indicate whether the woman is pregnant or not:
+dados3 <- dados2 %>% 
+  filter(!is.na(pregnant_SN)==TRUE)
+```
+
+Now we selected only women in childbearing (10-49).  
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+#selecionando os casos de 10 a 49 anos:
+dados4 <- dados3 %>% 
+  filter(FaixaEtaria != "0 a 4 anos" & 
+           FaixaEtaria != "05 a 9 anos" &
+           FaixaEtaria != "50 a 59 anos" &
+           FaixaEtaria != "60 a 69 anos" &
+           FaixaEtaria != "70 a 79 anos" &
+           FaixaEtaria != "80 a 89 anos" &
+           FaixaEtaria != "90 anos ou mais" & 
+           FaixaEtaria !=    "-")
+```
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+dados4 <- dados4 %>% 
+  mutate(age_group = case_when(
+    FaixaEtaria == "10 a 19 anos" ~ "10 - 19", 
+    FaixaEtaria == "20 a 29 anos" ~ "20 - 29", 
+    FaixaEtaria == "30 a 39 anos" ~ "30 - 39", 
+    FaixaEtaria == "40 a 49 anos" ~ "40 - 49", 
+    FaixaEtaria == "Não" ~ "no",
+    TRUE ~ NA_character_)
+  )
+
+questionr::freq(
+  dados4$age_group,
+  cum = FALSE,
+  total = TRUE,
+  na.last = FALSE,
+  valid = FALSE
+) %>%
+  kable(caption = "Frequency table of age group", 
+        digits = 2)  %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+Now we are going to select only the finalized cases (cases with information about cure or death). 
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+#Filtering only finalized cases
+dados5 <- dados4 %>% 
+  filter(Evolucao != "-" & Evolucao  != "Ignorado")
+
+dados5 <- dados5 %>% 
+  mutate(evol = case_when(
+    Evolucao == "Cura" ~ "cure", 
+    Evolucao == "Óbito pelo COVID-19" ~ "death by COVID-19", 
+    Evolucao == "Óbito por outras causas" ~ "death from other causes", 
+    TRUE ~ NA_character_)
+  )
+
+with(dados5, ctable(pregnant_SN, evol))
+```
+
+Creating the evolution variable presenting death from other causes and death by COVID-19 as death. 
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+dados5 <- dados5 %>% 
+  mutate(evolution = case_when(
+    Evolucao == "Óbito por outras causas" ~ "death", 
+    Evolucao == "Óbito pelo COVID-19" ~ "death", 
+    Evolucao == "Cura" ~ "cure"
+  ))
+
+with(dados5, ctable(pregnant_SN, evolution, OR=TRUE, useNA = "no", chisq = TRUE))
+```
+
+The search was limited to the first notified case of COVID-19 in February 2020 until April, 2021 because after this month the vaccination of pregnant and postpartum women started in Brazil. 
+
+```{r, echo=TRUE,message=FALSE,warning =FALSE,error=FALSE}
+dados5 <-  dados5 %>%
+  dplyr::mutate(
+    dt_notific = as.Date(DataNotificacao, format = "%d/%m/%Y"),
+    dt_diag = as.Date(DataDiagnostico, format = "%d/%m/%Y"),
+    year = lubridate::year(dt_diag),
+    month = lubridate::month(dt_diag), 
+    dif_diag_notific = as.numeric(dt_notific - dt_diag)
+  )
+
+dados5 <-  dados5 %>%
+  dplyr::filter(
+    (year ==  2020) | (year == 2021 & month <= 4)
+  )
+
+with(dados5, table(month, year))
+```
+
+The data to be analyzed in this search consists of women, pregnant or not, with confirmed cases of COVID-19 by PCR and/or antigen test, aged 10 to 49, with finalized outcome (death/cure).
+
+#  Demographic characteristics
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+## Education
+
+dados5 <-  dados5 %>%
+  mutate(esc_resumida = case_when(Escolaridade == "1ª a 4ª série incompleta do EF (antigo primário ou 1º grau)" ~ "Incomplete elementary", 
+                        Escolaridade == "4ª série completa do EF (antigo primário ou 1º grau)" ~ "Incomplete elementary",
+                        Escolaridade == "5ª à 8ª série incompleta do EF (antigo ginásio ou 1º grau)" ~ "Incomplete elementary",
+                        Escolaridade == "Analfabeto" ~ "No schooling",
+                        Escolaridade == "Educação superior completa" ~ "College",
+                        Escolaridade == "Educação superior incompleta" ~ "Middle school",
+                        Escolaridade == "Ensino fundamental completo (antigo ginásio ou 1º grau)" ~ "Elementary",
+                        Escolaridade == "Ensino médio completo (antigo colegial ou 2º grau )" ~ "Middle school",
+                        Escolaridade == "Ensino médio incompleto (antigo colegial ou 2º grau )" ~ "Elementary",
+                        Escolaridade == "Ignorado" ~ NA_character_,
+                        Escolaridade == "Não se aplica" ~ NA_character_,
+                               TRUE ~ NA_character_))
+
+dados5$esc_resumida <- factor(dados5$esc_resumida, 
+                     levels = c("No schooling","Incomplete elementary", "Elementary", "Middle school", "College"))
+                     
+## Ethnicity
+dados5 <-  dados5 %>%
+  mutate(ethn = case_when(RacaCor == "Amarela" ~ "Yellow",
+                          RacaCor == "Branca" ~ "White",
+                          RacaCor == "Indigena" ~ "Indigenous",
+                          RacaCor == "Parda" ~ "Brown",
+                          RacaCor == "Preta" ~ "Black",
+                          RacaCor == "Ignorado" ~ NA_character_,
+                               TRUE ~ NA_character_))
+```
+
+#  Symptoms
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+## Fever
+dados5 <-  dados5 %>%
+  mutate(fever = case_when(Febre == "Sim" ~ "yes",
+                              Febre == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+## Respiratory difficult
+dados5 <-  dados5 %>%
+  mutate(RespDif = case_when(DificuldadeRespiratoria == "Sim" ~ "yes",
+                              DificuldadeRespiratoria == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+## Cough
+dados5 <-  dados5 %>%
+  mutate(cough = case_when(Tosse == "Sim" ~ "yes",
+                              Tosse == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+# Coryza
+dados5 <-  dados5 %>%
+  mutate(coryza = case_when(Coriza == "Sim" ~ "yes",
+                              Coriza == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+# Sore throat  
+dados5 <-  dados5 %>%
+  mutate(sore_throat = case_when(DorGarganta == "Sim" ~ "yes",
+                              DorGarganta == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+# Diarrhea
+dados5 <-  dados5 %>%
+  mutate(diarrhea = case_when(Diarreia == "Sim" ~ "yes",
+                              Diarreia == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+# Headache
+dados5 <-  dados5 %>%
+  mutate(headache = case_when(Cefaleia == "Sim" ~ "yes",
+                              Cefaleia == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+```
+
+#  Comorbidities
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+# Pneumologic
+dados5 <-  dados5 %>%
+  mutate(pneumo = case_when(ComorbidadePulmao == "Sim" ~ "yes",
+                              ComorbidadePulmao == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+# Cardiovascular
+dados5 <-  dados5 %>%
+  mutate(cardio = case_when(ComorbidadeCardio == "Sim" ~ "yes",
+                              ComorbidadeCardio == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+# Renal
+dados5 <-  dados5 %>%
+  mutate(renal = case_when(ComorbidadeRenal == "Sim" ~ "yes",
+                              ComorbidadeRenal == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+# Diabetes
+dados5 <-  dados5 %>%
+  mutate(diabetes = case_when(ComorbidadeDiabetes == "Sim" ~ "yes",
+                              ComorbidadeDiabetes == "Não" ~ "Não",
+                              TRUE ~ NA_character_))
+
+# Smoker
+dados5 <-  dados5 %>%
+  mutate(smoker = case_when(ComorbidadeTabagismo == "Sim" ~ "yes",
+                              ComorbidadeTabagismo == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+
+# Obesity
+dados5 <-  dados5 %>%
+  mutate(obesity = case_when(ComorbidadeObesidade == "Sim" ~ "yes",
+                              ComorbidadeObesidade == "Não" ~ "no",
+                              TRUE ~ NA_character_))
+```
+
+#  Outcomes
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+# Hospitalyzed
+dados5 <-  dados5 %>%
+  mutate(hospi = case_when(FicouInternado == "Sim" ~ "yes",
+                              FicouInternado == "Não" ~ "no",
+                              FicouInternado == "Ignorado" ~ NA_character_,
+                              FicouInternado == "Não Informado" ~ NA_character_,
+                              TRUE ~ NA_character_))
+
+# Confirmation criterion
+dados5 <-  dados5 %>%
+  mutate(confirmatio_crit = case_when(CriterioConfirmacao == "Clinico" ~ "Clinical",
+                              CriterioConfirmacao == "Clinico Epdemiologico" ~ "Epidemiological clinical",
+                              CriterioConfirmacao == "Laboratorial" ~             "Laboratorial",
+                              TRUE ~ NA_character_))
+```
+
+
+# Analysis of the variables
+
+#### <span style="color:blue"> Age group </span>
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+
+with(dados5, ctable(age_group, pregnant_SN, prop = "c", useNA = "no", chisq = TRUE))
+```
+
+#### <span style="color:blue"> Age in the date of notification </span>
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+age <- dados5$IdadeNaDataNotificacao
+age_years <- str_before_nth(age, "anos", 1)
+age_years <- as.numeric(age_years)
+dados5 <- cbind(dados5, age_years)
+
+datasummary((pregnant_SN) ~ age_years*(n+MEAN+SD+MEDIAN+MIN+MAX+q25+q75+IQR), data = dados5, output = 'markdown')
+```
+
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+# Teste t
+t.test(age_years ~ pregnant_SN, data = dados5)
+```
+
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+# Teste de Wilcoxon
+wilcox.test(age_years ~ pregnant_SN, data = dados5)
+```
+
+#### <span style="color:blue">Ethnicity /Cor </span>
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+questionr::freq(
+  dados5$ethn,
+  cum = FALSE,
+  total = TRUE,
+  na.last = FALSE,
+  valid = FALSE
+)  %>%
+  kable(caption = "Frequency table of ethnicity", digits = 2)  %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(ethn, pregnant_SN, prop = "c", useNA = "no", chisq = FALSE))
+```
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+#Exact's Fisher Test
+fisher.test(dados5$ethn, dados5$pregnant_SN, simulate.p.value = TRUE)
+```
+
+#### <span style="color:blue"> Education </span>
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+questionr::freq(
+  dados5$esc_resumida,
+  cum = FALSE,
+  total = TRUE,
+  na.last = FALSE,
+  valid = FALSE
+)  %>%
+  kable(caption = "Frequency table of education", digits = 2)  %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(esc_resumida, pregnant_SN, prop = "c", useNA = "no", chisq = FALSE))
+```
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+#Exact's Fisher Test
+fisher.test(dados5$esc_resumida, dados5$pregnant_SN, simulate.p.value = TRUE)
+```
+
+# Symptoms variables
+
+#### <span style="color:blue"> Febre </span> 
+
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, fever, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue"> Respiratory difficult </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, RespDif, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue"> Cought </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, cough, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue"> Coryza </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, coryza, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue"> Sore Throat </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, sore_throat, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue"> Diarrhea </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, diarrhea, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue">  Headache </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, headache, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+# Comorbidities variables
+
+#### <span style="color:blue"> Pneumologic </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, pneumo, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue"> Cardiovascular </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, cardio, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue"> Renal </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, renal,chisq=FALSE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+#Exact's Fisher Test
+fisher.test(dados5$pregnant_SN, dados5$renal, simulate.p.value = TRUE)
+```
+
+#### <span style="color:blue"> Diabetes </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, diabetes, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue"> Smoker </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, smoker, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+#### <span style="color:blue"> Obesity </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, obesity, chisq=TRUE, prop="r", OR=TRUE, useNA = "no"))
+```
+
+# Outcome analysis
+
+
+#### <span style="color:blue"> Hospitalyzed </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, hospi, prop = "r", useNA = "no", chisq = FALSE, OR=TRUE))
+```
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+fisher.test(dados5$hospi, dados5$pregnant_SN, simulate.p.value = TRUE)
+```
+
+#### <span style="color:blue"> Evolution </span> 
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, evolution, prop = "r", useNA = "no", chisq = FALSE, OR=TRUE))
+```
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+#Exact's Fisher Test
+fisher.test( dados5$pregnant_SN, dados5$evolution, simulate.p.value = TRUE)
+```
+
+# Propensity Score Matching
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+# Analyzing the balance between the groups pregnant and non-pregnant
+bal.tab(pregnant_SN ~ age_group + esc_resumida + ethn + cardio + diabetes + obesity, 
+        data = dados5, estimand = "ATE", m.threshold = .05)
+```
+
+##Obteining the weights
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+ajuste <- weightit(pregnant_SN ~ age_group + esc_resumida + ethn + cardio + diabetes + obesity, 
+                   use.mlogit = FALSE, data = dados5, method = "ps", estimand = "ATE")
+bal.tab(ajuste, m.threshold = 0.05, disp.v.ratio = TRUE, estimand = "ATE")
+dados5$weight <- ajuste$weights
+```
+
+##After-PSM
+
+```{r, echo=TRUE, eval= TRUE, message=FALSE, warning =FALSE, error=FALSE}
+with(dados5, ctable(pregnant_SN, hospi, prop = "r", useNA = "no", 
+                    chisq = FALSE, OR=TRUE, weights = weight))
+
+with(dados5, ctable(pregnant_SN, evolution, prop="r", OR=TRUE, useNA = "no", 
+                    chisq = TRUE, weights = weight))
+```
+
+
+

@@ -1,0 +1,1986 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Propensity score (an application to COVID-19 maternal mortality data)},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{float}
+\floatplacement{figure}{H}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Propensity score (an application to COVID-19 maternal mortality
+data)}
+\author{}
+\date{\vspace{-2.5em}21/06/2022}
+
+\begin{document}
+\maketitle
+
+\hypertarget{about-the-database-and-r-packages-used}{%
+\section{About the database and R packages
+used}\label{about-the-database-and-r-packages-used}}
+
+This research studies some demographic, clinical and mortality variables
+of COVID-19 pandemic aiming to compare pregnant and non-pregnant
+childbearing age (10 to 49 years) women living in Espírito Santo/BR. The
+search was limited to the first notified case of COVID-19 in February
+2020 until April, 2021 because after this month the vaccination of
+pregnant and postpartum women started in Brazil. The dataset were
+obtained on July 19, 2021, on the site
+\url{https://coronavirus.es.gov.br/painel-covid-19-es}. The data are
+loaded next.
+
+The data are analyzed using the free-software R
+(\url{https://www.R-project.org}) in version 4.0.3. Next, we present and
+load the libraries used in the data analysis process.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loadlibrary }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}
+  \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{require}\NormalTok{(x, }\AttributeTok{character.only =} \ConstantTok{TRUE}\NormalTok{)) \{}
+    \FunctionTok{install.packages}\NormalTok{(x, }\AttributeTok{dependencies =}\NormalTok{ T)}
+    \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{require}\NormalTok{(x, }\AttributeTok{character.only =} \ConstantTok{TRUE}\NormalTok{))}
+      \FunctionTok{stop}\NormalTok{(}\StringTok{"Package not found"}\NormalTok{)}
+\NormalTok{  \}}
+\NormalTok{\}}
+
+\NormalTok{packages }\OtherTok{\textless{}{-}}
+  \FunctionTok{c}\NormalTok{(}
+    \StringTok{"dplyr"}\NormalTok{,}
+    \StringTok{"lubridate"}\NormalTok{,}
+    \StringTok{"readr"}\NormalTok{,}
+    \StringTok{"readxl"}\NormalTok{,}
+    \StringTok{"ggplot2"}\NormalTok{,}
+    \StringTok{"kableExtra"}\NormalTok{,}
+    \StringTok{"tables"}\NormalTok{,}
+    \StringTok{"questionr"}\NormalTok{,}
+    \StringTok{"car"}\NormalTok{,}
+    \StringTok{"data.table"}\NormalTok{,}
+    \StringTok{"magrittr"}\NormalTok{,}
+    \StringTok{"readxl"}\NormalTok{,}
+    \StringTok{"summarytools"}\NormalTok{,}
+    \StringTok{"modelsummary"}\NormalTok{,}
+    \StringTok{"zoo"}\NormalTok{, }
+    \StringTok{"strex"}\NormalTok{,}
+    \StringTok{"WeightIt"}\NormalTok{, }
+    \StringTok{"MatchIt"}\NormalTok{,}
+    \StringTok{"cobalt"}\NormalTok{,}
+    \StringTok{"RItools"}
+\NormalTok{  )}
+\FunctionTok{lapply}\NormalTok{(packages, loadlibrary)}
+
+\DocumentationTok{\#\#\# Data of Espírito Santo/BR \#\#\#\#\#\#\#\#\#\#\#\#\#}
+\NormalTok{dados }\OtherTok{\textless{}{-}} \FunctionTok{read\_delim}\NormalTok{(}\StringTok{"MICRODADOS{-}19{-}07{-}2021.csv"}\NormalTok{, }
+                         \StringTok{";"}\NormalTok{, }\AttributeTok{quote =} \StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}\textbackslash{}"}\StringTok{"}\NormalTok{, }\AttributeTok{escape\_double =} \ConstantTok{FALSE}\NormalTok{, }
+                         \AttributeTok{locale =} \FunctionTok{locale}\NormalTok{(}\AttributeTok{encoding =} \StringTok{"ISO{-}8859{-}1"}\NormalTok{), }
+                         \AttributeTok{trim\_ws =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#functions for summary measures}
+\NormalTok{MEAN }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{mean}\NormalTok{(x, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{MEDIAN }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{median}\NormalTok{(x, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{SDev }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{sd}\NormalTok{(x, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{MIN }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) base}\SpecialCharTok{::}\FunctionTok{min}\NormalTok{(x, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{MAX }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) base}\SpecialCharTok{::}\FunctionTok{max}\NormalTok{(x, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{q25 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) stats}\SpecialCharTok{::}\FunctionTok{quantile}\NormalTok{(x, }\AttributeTok{p=}\FloatTok{0.25}\NormalTok{, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{q75 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) stats}\SpecialCharTok{::}\FunctionTok{quantile}\NormalTok{(x, }\AttributeTok{p=}\FloatTok{0.75}\NormalTok{, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{IQR }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{round}\NormalTok{(}\FunctionTok{q75}\NormalTok{(x)}\SpecialCharTok{{-}}\FunctionTok{q25}\NormalTok{(x), }\DecValTok{2}\NormalTok{)}
+\NormalTok{n }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x)  }\FunctionTok{sum}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(x))}
+\end{Highlighting}
+\end{Shaded}
+
+There are 1742179 observations in the database. Each line in this
+dataset corresponds to a data from February,2020 to July, 2021. Below,
+we present the variables considered in the study for each data.
+
+\begin{verbatim}
+## [1] Inf
+\end{verbatim}
+
+\hypertarget{case-selection}{%
+\section{Case selection}\label{case-selection}}
+
+First, we select only confirmed cases.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dados }\OtherTok{\textless{}{-}}\NormalTok{ dados }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{Classification =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      Classificacao }\SpecialCharTok{==} \StringTok{"Confirmados"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Confirmed"}\NormalTok{, }\CommentTok{\#confirmed cases of COVID{-}19}
+\NormalTok{      Classificacao }\SpecialCharTok{==} \StringTok{"Descartados"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Discarded"}\NormalTok{, }\CommentTok{\#discarted cases of COVID{-}19}
+\NormalTok{      Classificacao }\SpecialCharTok{==} \StringTok{"Suspeito"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Suspect"}\NormalTok{, }\CommentTok{\#suspected cases of COVID{-}19}
+      \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}
+\NormalTok{    )}
+\NormalTok{  )}
+
+
+\NormalTok{questionr}\SpecialCharTok{::}\FunctionTok{freq}\NormalTok{(}
+\NormalTok{  dados}\SpecialCharTok{$}\NormalTok{Classification,}
+  \AttributeTok{cum =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{total =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{na.last =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{valid =} \ConstantTok{FALSE}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Frequency table of classification"}\NormalTok{, }
+        \AttributeTok{digits =} \DecValTok{2}\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"HOLD\_position"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-3}Frequency table of classification}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+  & n & \%\\
+\hline
+Confirmed & 533846 & 30.6\\
+\hline
+Discarded & 930071 & 53.4\\
+\hline
+Suspect & 278262 & 16.0\\
+\hline
+Total & 1742179 & 100.0\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Filtering only confirmed cases of COVID{-}19}
+\NormalTok{dados1 }\OtherTok{\textless{}{-}}\NormalTok{ dados }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Classification }\SpecialCharTok{==} \StringTok{\textquotesingle{}Confirmed\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dados1 }\OtherTok{\textless{}{-}}\NormalTok{ dados1 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{PCR\_results =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      ResultadoRT\_PCR }\SpecialCharTok{==} \StringTok{"Inconclusivo"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Inconclusive"}\NormalTok{, }
+\NormalTok{      ResultadoRT\_PCR }\SpecialCharTok{==} \StringTok{"Não Informado"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Not informed "}\NormalTok{, }
+\NormalTok{      ResultadoRT\_PCR }\SpecialCharTok{==} \StringTok{"Negativo"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Negative"}\NormalTok{, }
+\NormalTok{      ResultadoRT\_PCR }\SpecialCharTok{==} \StringTok{"Positivo"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Positive"}\NormalTok{, }
+      \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}
+\NormalTok{    )}
+\NormalTok{  )}
+
+\NormalTok{questionr}\SpecialCharTok{::}\FunctionTok{freq}\NormalTok{(}
+\NormalTok{  dados1}\SpecialCharTok{$}\NormalTok{PCR\_results,}
+  \AttributeTok{cum =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{total =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{na.last =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{valid =} \ConstantTok{FALSE}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Results of PCR test of the confirmed cases"}\NormalTok{, }
+        \AttributeTok{digits =} \DecValTok{2}\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"HOLD\_position"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-5}Results of PCR test of the confirmed cases}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+  & n & \%\\
+\hline
+Inconclusive & 960 & 0.2\\
+\hline
+Negative & 5714 & 1.1\\
+\hline
+Not informed & 229572 & 43.0\\
+\hline
+Positive & 297600 & 55.7\\
+\hline
+Total & 533846 & 100.0\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dados1 }\OtherTok{\textless{}{-}}\NormalTok{ dados1 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{rapid\_tests =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      TipoTesteRapido }\SpecialCharTok{==} \StringTok{"Ignorado"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Unknown"}\NormalTok{, }
+\NormalTok{      TipoTesteRapido }\SpecialCharTok{==} \StringTok{"Não Informado"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Not informed"}\NormalTok{, }
+\NormalTok{      TipoTesteRapido }\SpecialCharTok{==} \StringTok{"Teste rápido Antígeno"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Antigen test"}\NormalTok{, }
+\NormalTok{      TipoTesteRapido }\SpecialCharTok{==} \StringTok{"Teste rápido IgM/IgG"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"IgM/IgG"}\NormalTok{, }
+      \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}
+\NormalTok{    )}
+\NormalTok{  )}
+
+\NormalTok{questionr}\SpecialCharTok{::}\FunctionTok{freq}\NormalTok{(}
+\NormalTok{  dados1}\SpecialCharTok{$}\NormalTok{rapid\_tests,}
+  \AttributeTok{cum =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{total =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{na.last =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{valid =} \ConstantTok{FALSE}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Types of rapid tests of the confirmed cases"}\NormalTok{, }
+        \AttributeTok{digits =} \DecValTok{2}\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"HOLD\_position"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-6}Types of rapid tests of the confirmed cases}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+  & n & \%\\
+\hline
+Antigen test & 110440 & 20.7\\
+\hline
+IgM/IgG & 40327 & 7.6\\
+\hline
+Not informed & 378033 & 70.8\\
+\hline
+Unknown & 5046 & 0.9\\
+\hline
+Total & 533846 & 100.0\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dados1 }\OtherTok{\textless{}{-}}\NormalTok{ dados1 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{rapid\_results =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      ResultadoTesteRapido }\SpecialCharTok{==} \StringTok{"Inconclusivo"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Inconclusive"}\NormalTok{, }
+\NormalTok{      ResultadoTesteRapido }\SpecialCharTok{==} \StringTok{"Não Informado"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Not informed "}\NormalTok{, }
+\NormalTok{      ResultadoTesteRapido }\SpecialCharTok{==} \StringTok{"Negativo"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Negative"}\NormalTok{, }
+\NormalTok{      ResultadoTesteRapido }\SpecialCharTok{==} \StringTok{"Positivo"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Positive"}\NormalTok{, }
+      \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}
+\NormalTok{    )}
+\NormalTok{  )}
+
+\NormalTok{questionr}\SpecialCharTok{::}\FunctionTok{freq}\NormalTok{(}
+\NormalTok{  dados1}\SpecialCharTok{$}\NormalTok{rapid\_results,}
+  \AttributeTok{cum =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{total =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{na.last =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{valid =} \ConstantTok{FALSE}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Results of rapid tests of the confirmed cases"}\NormalTok{, }
+        \AttributeTok{digits =} \DecValTok{2}\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"HOLD\_position"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-7}Results of rapid tests of the confirmed cases}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+  & n & \%\\
+\hline
+Inconclusive & 242 & 0.0\\
+\hline
+Negative & 12947 & 2.4\\
+\hline
+Not informed & 325563 & 61.0\\
+\hline
+Positive & 195094 & 36.5\\
+\hline
+Total & 533846 & 100.0\\
+\hline
+\end{tabular}
+\end{table}
+
+In this search, we consider only observations with positive PCR or
+positive antigen test for COVID-19.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Filtering only positive cases of COVID{-}19 detected by PCR or antigen test}
+\NormalTok{dados1\_1 }\OtherTok{\textless{}{-}}\NormalTok{ dados1 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(PCR\_results }\SpecialCharTok{==} \StringTok{\textquotesingle{}Positive\textquotesingle{}} \SpecialCharTok{|}\NormalTok{ (rapid\_tests }\SpecialCharTok{==} \StringTok{"Antigen test"} \SpecialCharTok{\&}\NormalTok{ rapid\_results }\SpecialCharTok{==} \StringTok{\textquotesingle{}Positive\textquotesingle{}}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Considering only people with confirmed cases of COVID-19 by PCR or
+antigen test, the following table presents the distribution of the sex
+variable.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dados1\_1}\OtherTok{\textless{}{-}}\NormalTok{ dados1\_1 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{Sex =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      Sexo }\SpecialCharTok{==} \StringTok{"F"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Female"}\NormalTok{, }
+\NormalTok{      Sexo }\SpecialCharTok{==} \StringTok{"M"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Male"}\NormalTok{, }
+\NormalTok{      Sexo }\SpecialCharTok{==} \StringTok{"I"}  \SpecialCharTok{\textasciitilde{}} \StringTok{"Not informed"}\NormalTok{, }
+      \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}
+\NormalTok{    )}
+\NormalTok{  )}
+
+\NormalTok{questionr}\SpecialCharTok{::}\FunctionTok{freq}\NormalTok{(}
+\NormalTok{  dados1\_1}\SpecialCharTok{$}\NormalTok{Sex,}
+  \AttributeTok{cum =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{total =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{na.last =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{valid =} \ConstantTok{FALSE}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Frequency table of sex variable"}\NormalTok{, }
+        \AttributeTok{digits =} \DecValTok{2}\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"HOLD\_position"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-9}Frequency table of sex variable}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+  & n & \%\\
+\hline
+Female & 215555 & 54.1\\
+\hline
+Male & 182732 & 45.9\\
+\hline
+Not informed & 81 & 0.0\\
+\hline
+Total & 398368 & 100.0\\
+\hline
+\end{tabular}
+\end{table}
+
+The next selection consists of selecting females cases:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Filtrando só as pessoas de sexo feminino}
+\NormalTok{dados2 }\OtherTok{\textless{}{-}}\NormalTok{ dados1\_1 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Sex }\SpecialCharTok{==} \StringTok{\textquotesingle{}Female\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+The next step is to identify pregnant and postpartum people (variable
+classi\_gesta\_puerp) in the female group.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Creating the variable pregnant (any trimester or ignored gestational age) and non{-}pregnant}
+\NormalTok{dados2 }\OtherTok{\textless{}{-}}\NormalTok{ dados2 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pregnant\_SN =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Gestante }\SpecialCharTok{==} \StringTok{"1º trimeste"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{, }
+\NormalTok{    Gestante }\SpecialCharTok{==} \StringTok{"2º trimeste"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{, }
+\NormalTok{    Gestante }\SpecialCharTok{==} \StringTok{"3º trimeste"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{, }
+\NormalTok{    Gestante }\SpecialCharTok{==} \StringTok{"Idade gestacional ignorada"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{, }
+\NormalTok{    Gestante }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}
+\NormalTok{  ))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{questionr}\SpecialCharTok{::}\FunctionTok{freq}\NormalTok{(}
+\NormalTok{  dados2}\SpecialCharTok{$}\NormalTok{pregnant\_SN ,}
+  \AttributeTok{cum =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{total =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{na.last =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{valid =} \ConstantTok{FALSE}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Frequency table of pregnancy variable"}\NormalTok{, }
+        \AttributeTok{digits =} \DecValTok{2}\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"HOLD\_position"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-12}Frequency table of pregnancy variable}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+  & n & \%\\
+\hline
+no & 211836 & 98.3\\
+\hline
+yes & 1922 & 0.9\\
+\hline
+NA & 1797 & 0.8\\
+\hline
+Total & 215555 & 100.0\\
+\hline
+\end{tabular}
+\end{table}
+
+Now, we only select women who are pregnant or not.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Filtering only the cases that indicate whether the woman is pregnant or not:}
+\NormalTok{dados3 }\OtherTok{\textless{}{-}}\NormalTok{ dados2 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(pregnant\_SN)}\SpecialCharTok{==}\ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Now we selected only women in childbearing (10-49).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#selecionando os casos de 10 a 49 anos:}
+\NormalTok{dados4 }\OtherTok{\textless{}{-}}\NormalTok{ dados3 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(FaixaEtaria }\SpecialCharTok{!=} \StringTok{"0 a 4 anos"} \SpecialCharTok{\&} 
+\NormalTok{           FaixaEtaria }\SpecialCharTok{!=} \StringTok{"05 a 9 anos"} \SpecialCharTok{\&}
+\NormalTok{           FaixaEtaria }\SpecialCharTok{!=} \StringTok{"50 a 59 anos"} \SpecialCharTok{\&}
+\NormalTok{           FaixaEtaria }\SpecialCharTok{!=} \StringTok{"60 a 69 anos"} \SpecialCharTok{\&}
+\NormalTok{           FaixaEtaria }\SpecialCharTok{!=} \StringTok{"70 a 79 anos"} \SpecialCharTok{\&}
+\NormalTok{           FaixaEtaria }\SpecialCharTok{!=} \StringTok{"80 a 89 anos"} \SpecialCharTok{\&}
+\NormalTok{           FaixaEtaria }\SpecialCharTok{!=} \StringTok{"90 anos ou mais"} \SpecialCharTok{\&} 
+\NormalTok{           FaixaEtaria }\SpecialCharTok{!=}    \StringTok{"{-}"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dados4 }\OtherTok{\textless{}{-}}\NormalTok{ dados4 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{age\_group =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    FaixaEtaria }\SpecialCharTok{==} \StringTok{"10 a 19 anos"} \SpecialCharTok{\textasciitilde{}} \StringTok{"10 {-} 19"}\NormalTok{, }
+\NormalTok{    FaixaEtaria }\SpecialCharTok{==} \StringTok{"20 a 29 anos"} \SpecialCharTok{\textasciitilde{}} \StringTok{"20 {-} 29"}\NormalTok{, }
+\NormalTok{    FaixaEtaria }\SpecialCharTok{==} \StringTok{"30 a 39 anos"} \SpecialCharTok{\textasciitilde{}} \StringTok{"30 {-} 39"}\NormalTok{, }
+\NormalTok{    FaixaEtaria }\SpecialCharTok{==} \StringTok{"40 a 49 anos"} \SpecialCharTok{\textasciitilde{}} \StringTok{"40 {-} 49"}\NormalTok{, }
+\NormalTok{    FaixaEtaria }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{)}
+\NormalTok{  )}
+
+\NormalTok{questionr}\SpecialCharTok{::}\FunctionTok{freq}\NormalTok{(}
+\NormalTok{  dados4}\SpecialCharTok{$}\NormalTok{age\_group,}
+  \AttributeTok{cum =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{total =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{na.last =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{valid =} \ConstantTok{FALSE}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Frequency table of age group"}\NormalTok{, }
+        \AttributeTok{digits =} \DecValTok{2}\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"HOLD\_position"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-15}Frequency table of age group}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+  & n & \%\\
+\hline
+10 - 19 & 13521 & 9.2\\
+\hline
+20 - 29 & 39539 & 26.9\\
+\hline
+30 - 39 & 51218 & 34.9\\
+\hline
+40 - 49 & 42565 & 29.0\\
+\hline
+Total & 146843 & 100.0\\
+\hline
+\end{tabular}
+\end{table}
+
+Now we are going to select only the finalized cases (cases with
+information about cure or death).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Filtering only finalized cases}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{ dados4 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Evolucao }\SpecialCharTok{!=} \StringTok{"{-}"} \SpecialCharTok{\&}\NormalTok{ Evolucao  }\SpecialCharTok{!=} \StringTok{"Ignorado"}\NormalTok{)}
+
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{ dados5 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{evol =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Evolucao }\SpecialCharTok{==} \StringTok{"Cura"} \SpecialCharTok{\textasciitilde{}} \StringTok{"cure"}\NormalTok{, }
+\NormalTok{    Evolucao }\SpecialCharTok{==} \StringTok{"Óbito pelo COVID{-}19"} \SpecialCharTok{\textasciitilde{}} \StringTok{"death by COVID{-}19"}\NormalTok{, }
+\NormalTok{    Evolucao }\SpecialCharTok{==} \StringTok{"Óbito por outras causas"} \SpecialCharTok{\textasciitilde{}} \StringTok{"death from other causes"}\NormalTok{, }
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{)}
+\NormalTok{  )}
+
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, evol))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * evol  
+## Data Frame: dados5  
+## 
+## ------------- ------ ----------------- ------------------- ------------------------- -----------------
+##                 evol              cure   death by COVID-19   death from other causes             Total
+##   pregnant_SN                                                                                         
+##            no          141227 ( 99.6%)          571 (0.4%)               10 (0.007%)   141808 (100.0%)
+##           yes            1870 ( 99.3%)           13 (0.7%)                0 (0.000%)     1883 (100.0%)
+##         Total          143097 ( 99.6%)          584 (0.4%)               10 (0.007%)   143691 (100.0%)
+## ------------- ------ ----------------- ------------------- ------------------------- -----------------
+\end{verbatim}
+
+Creating the evolution variable presenting death from other causes and
+death by COVID-19 as death.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{ dados5 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{evolution =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Evolucao }\SpecialCharTok{==} \StringTok{"Óbito por outras causas"} \SpecialCharTok{\textasciitilde{}} \StringTok{"death"}\NormalTok{, }
+\NormalTok{    Evolucao }\SpecialCharTok{==} \StringTok{"Óbito pelo COVID{-}19"} \SpecialCharTok{\textasciitilde{}} \StringTok{"death"}\NormalTok{, }
+\NormalTok{    Evolucao }\SpecialCharTok{==} \StringTok{"Cura"} \SpecialCharTok{\textasciitilde{}} \StringTok{"cure"}
+\NormalTok{  ))}
+
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, evolution, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{, }\AttributeTok{chisq =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * evolution  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ----------- ----------------- ------------ -----------------
+##                 evolution              cure        death             Total
+##   pregnant_SN                                                             
+##            no               141227 ( 99.6%)   581 (0.4%)   141808 (100.0%)
+##           yes                 1870 ( 99.3%)    13 (0.7%)     1883 (100.0%)
+##         Total               143097 ( 99.6%)   594 (0.4%)   143691 (100.0%)
+## ------------- ----------- ----------------- ------------ -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    2.9071      1    0.0882  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     1.69        0.97       2.93   
+## ----------------------------------
+\end{verbatim}
+
+The search was limited to the first notified case of COVID-19 in
+February 2020 until April, 2021 because after this month the vaccination
+of pregnant and postpartum women started in Brazil.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{dt\_notific =} \FunctionTok{as.Date}\NormalTok{(DataNotificacao, }\AttributeTok{format =} \StringTok{"\%d/\%m/\%Y"}\NormalTok{),}
+    \AttributeTok{dt\_diag =} \FunctionTok{as.Date}\NormalTok{(DataDiagnostico, }\AttributeTok{format =} \StringTok{"\%d/\%m/\%Y"}\NormalTok{),}
+    \AttributeTok{year =}\NormalTok{ lubridate}\SpecialCharTok{::}\FunctionTok{year}\NormalTok{(dt\_diag),}
+    \AttributeTok{month =}\NormalTok{ lubridate}\SpecialCharTok{::}\FunctionTok{month}\NormalTok{(dt\_diag), }
+    \AttributeTok{dif\_diag\_notific =} \FunctionTok{as.numeric}\NormalTok{(dt\_notific }\SpecialCharTok{{-}}\NormalTok{ dt\_diag)}
+\NormalTok{  )}
+
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{filter}\NormalTok{(}
+\NormalTok{    (year }\SpecialCharTok{==}  \DecValTok{2020}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ (year }\SpecialCharTok{==} \DecValTok{2021} \SpecialCharTok{\&}\NormalTok{ month }\SpecialCharTok{\textless{}=} \DecValTok{4}\NormalTok{)}
+\NormalTok{  )}
+
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{table}\NormalTok{(month, year))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      year
+## month  2020  2021
+##    1      2 12491
+##    2      1  8735
+##    3     95 20054
+##    4   1735 13383
+##    5   5205     0
+##    6   6411     0
+##    7   5572     0
+##    8   3814     0
+##    9   4581     0
+##    10  8359     0
+##    11 15303     0
+##    12 15868     0
+\end{verbatim}
+
+The data to be analyzed in this search consists of women, pregnant or
+not, with confirmed cases of COVID-19 by PCR and/or antigen test, aged
+10 to 49, with finalized outcome (death/cure).
+
+\hypertarget{demographic-characteristics}{%
+\section{Demographic
+characteristics}\label{demographic-characteristics}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Education}
+
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{esc\_resumida =} \FunctionTok{case\_when}\NormalTok{(Escolaridade }\SpecialCharTok{==} \StringTok{"1ª a 4ª série incompleta do EF (antigo primário ou 1º grau)"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Incomplete elementary"}\NormalTok{, }
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"4ª série completa do EF (antigo primário ou 1º grau)"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Incomplete elementary"}\NormalTok{,}
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"5ª à 8ª série incompleta do EF (antigo ginásio ou 1º grau)"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Incomplete elementary"}\NormalTok{,}
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"Analfabeto"} \SpecialCharTok{\textasciitilde{}} \StringTok{"No schooling"}\NormalTok{,}
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"Educação superior completa"} \SpecialCharTok{\textasciitilde{}} \StringTok{"College"}\NormalTok{,}
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"Educação superior incompleta"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Middle school"}\NormalTok{,}
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"Ensino fundamental completo (antigo ginásio ou 1º grau)"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Elementary"}\NormalTok{,}
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"Ensino médio completo (antigo colegial ou 2º grau )"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Middle school"}\NormalTok{,}
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"Ensino médio incompleto (antigo colegial ou 2º grau )"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Elementary"}\NormalTok{,}
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"Ignorado"} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{,}
+\NormalTok{                        Escolaridade }\SpecialCharTok{==} \StringTok{"Não se aplica"} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{,}
+                               \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\NormalTok{dados5}\SpecialCharTok{$}\NormalTok{esc\_resumida }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(dados5}\SpecialCharTok{$}\NormalTok{esc\_resumida, }
+                     \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"No schooling"}\NormalTok{,}\StringTok{"Incomplete elementary"}\NormalTok{, }\StringTok{"Elementary"}\NormalTok{, }\StringTok{"Middle school"}\NormalTok{, }\StringTok{"College"}\NormalTok{))}
+                     
+\DocumentationTok{\#\# Ethnicity}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{ethn =} \FunctionTok{case\_when}\NormalTok{(RacaCor }\SpecialCharTok{==} \StringTok{"Amarela"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Yellow"}\NormalTok{,}
+\NormalTok{                          RacaCor }\SpecialCharTok{==} \StringTok{"Branca"} \SpecialCharTok{\textasciitilde{}} \StringTok{"White"}\NormalTok{,}
+\NormalTok{                          RacaCor }\SpecialCharTok{==} \StringTok{"Indigena"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Indigenous"}\NormalTok{,}
+\NormalTok{                          RacaCor }\SpecialCharTok{==} \StringTok{"Parda"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Brown"}\NormalTok{,}
+\NormalTok{                          RacaCor }\SpecialCharTok{==} \StringTok{"Preta"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Black"}\NormalTok{,}
+\NormalTok{                          RacaCor }\SpecialCharTok{==} \StringTok{"Ignorado"} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{,}
+                               \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{symptoms}{%
+\section{Symptoms}\label{symptoms}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Fever}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{fever =} \FunctionTok{case\_when}\NormalTok{(Febre }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              Febre }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\DocumentationTok{\#\# Respiratory difficult}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{RespDif =} \FunctionTok{case\_when}\NormalTok{(DificuldadeRespiratoria }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              DificuldadeRespiratoria }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\DocumentationTok{\#\# Cough}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{cough =} \FunctionTok{case\_when}\NormalTok{(Tosse }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              Tosse }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Coryza}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{coryza =} \FunctionTok{case\_when}\NormalTok{(Coriza }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              Coriza }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Sore throat  }
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{sore\_throat =} \FunctionTok{case\_when}\NormalTok{(DorGarganta }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              DorGarganta }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Diarrhea}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{diarrhea =} \FunctionTok{case\_when}\NormalTok{(Diarreia }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              Diarreia }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Headache}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{headache =} \FunctionTok{case\_when}\NormalTok{(Cefaleia }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              Cefaleia }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{comorbidities}{%
+\section{Comorbidities}\label{comorbidities}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Pneumologic}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pneumo =} \FunctionTok{case\_when}\NormalTok{(ComorbidadePulmao }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              ComorbidadePulmao }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Cardiovascular}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{cardio =} \FunctionTok{case\_when}\NormalTok{(ComorbidadeCardio }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              ComorbidadeCardio }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Renal}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{renal =} \FunctionTok{case\_when}\NormalTok{(ComorbidadeRenal }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              ComorbidadeRenal }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Diabetes}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{diabetes =} \FunctionTok{case\_when}\NormalTok{(ComorbidadeDiabetes }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              ComorbidadeDiabetes }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Não"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Smoker}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{smoker =} \FunctionTok{case\_when}\NormalTok{(ComorbidadeTabagismo }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              ComorbidadeTabagismo }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Obesity}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{obesity =} \FunctionTok{case\_when}\NormalTok{(ComorbidadeObesidade }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              ComorbidadeObesidade }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{outcomes}{%
+\section{Outcomes}\label{outcomes}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Hospitalyzed}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{hospi =} \FunctionTok{case\_when}\NormalTok{(FicouInternado }\SpecialCharTok{==} \StringTok{"Sim"} \SpecialCharTok{\textasciitilde{}} \StringTok{"yes"}\NormalTok{,}
+\NormalTok{                              FicouInternado }\SpecialCharTok{==} \StringTok{"Não"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}\NormalTok{,}
+\NormalTok{                              FicouInternado }\SpecialCharTok{==} \StringTok{"Ignorado"} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{,}
+\NormalTok{                              FicouInternado }\SpecialCharTok{==} \StringTok{"Não Informado"} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+
+\CommentTok{\# Confirmation criterion}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}}\NormalTok{  dados5 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{confirmatio\_crit =} \FunctionTok{case\_when}\NormalTok{(CriterioConfirmacao }\SpecialCharTok{==} \StringTok{"Clinico"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Clinical"}\NormalTok{,}
+\NormalTok{                              CriterioConfirmacao }\SpecialCharTok{==} \StringTok{"Clinico Epdemiologico"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Epidemiological clinical"}\NormalTok{,}
+\NormalTok{                              CriterioConfirmacao }\SpecialCharTok{==} \StringTok{"Laboratorial"} \SpecialCharTok{\textasciitilde{}}             \StringTok{"Laboratorial"}\NormalTok{,}
+                              \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{analysis-of-the-variables}{%
+\section{Analysis of the variables}\label{analysis-of-the-variables}}
+
+\hypertarget{age-group}{%
+\paragraph{\texorpdfstring{{ Age group
+}}{ Age group }}\label{age-group}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(age\_group, pregnant\_SN, }\AttributeTok{prop =} \StringTok{"c"}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{, }\AttributeTok{chisq =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Column Proportions  
+## age_group * pregnant_SN  
+## Data Frame: dados5  
+## 
+## 
+## ----------- ------------- ----------------- --------------- -----------------
+##               pregnant_SN                no             yes             Total
+##   age_group                                                                  
+##     10 - 19                  10027 (  8.4%)    131 (  7.8%)    10158 (  8.4%)
+##     20 - 29                  32105 ( 26.8%)    825 ( 49.1%)    32930 ( 27.1%)
+##     30 - 39                  42397 ( 35.4%)    654 ( 39.0%)    43051 ( 35.4%)
+##     40 - 49                  35401 ( 29.5%)     69 (  4.1%)    35470 ( 29.2%)
+##       Total                 119930 (100.0%)   1679 (100.0%)   121609 (100.0%)
+## ----------- ------------- ----------------- --------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##   679.0865     3       0    
+## ----------------------------
+\end{verbatim}
+
+\hypertarget{age-in-the-date-of-notification}{%
+\paragraph{\texorpdfstring{{ Age in the date of notification
+}}{ Age in the date of notification }}\label{age-in-the-date-of-notification}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{age }\OtherTok{\textless{}{-}}\NormalTok{ dados5}\SpecialCharTok{$}\NormalTok{IdadeNaDataNotificacao}
+\NormalTok{age\_years }\OtherTok{\textless{}{-}} \FunctionTok{str\_before\_nth}\NormalTok{(age, }\StringTok{"anos"}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{age\_years }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(age\_years)}
+\NormalTok{dados5 }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(dados5, age\_years)}
+
+\FunctionTok{datasummary}\NormalTok{((pregnant\_SN) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ age\_years}\SpecialCharTok{*}\NormalTok{(n}\SpecialCharTok{+}\NormalTok{MEAN}\SpecialCharTok{+}\NormalTok{SD}\SpecialCharTok{+}\NormalTok{MEDIAN}\SpecialCharTok{+}\NormalTok{MIN}\SpecialCharTok{+}\NormalTok{MAX}\SpecialCharTok{+}\NormalTok{q25}\SpecialCharTok{+}\NormalTok{q75}\SpecialCharTok{+}\NormalTok{IQR), }\AttributeTok{data =}\NormalTok{ dados5, }\AttributeTok{output =} \StringTok{\textquotesingle{}markdown\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0645}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.1613}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0968}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0806}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.1129}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0968}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0968}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0968}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0968}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0968}}@{}}
+\toprule
+\begin{minipage}[b]{\linewidth}\raggedright
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MEAN
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SD
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MEDIAN
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MIN
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAX
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+q25
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+q75
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+IQR
+\end{minipage} \\
+\midrule
+\endhead
+no & 119930.00 & 33.25 & 9.37 & 34.00 & 10.00 & 49.00 & 26.00 & 41.00 &
+15.00 \\
+yes & 1679.00 & 28.40 & 6.40 & 28.00 & 13.00 & 45.00 & 23.00 & 33.00 &
+10.00 \\
+\bottomrule
+\end{longtable}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Teste t}
+\FunctionTok{t.test}\NormalTok{(age\_years }\SpecialCharTok{\textasciitilde{}}\NormalTok{ pregnant\_SN, }\AttributeTok{data =}\NormalTok{ dados5)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Welch Two Sample t-test
+## 
+## data:  age_years by pregnant_SN
+## t = 30.624, df = 1780.2, p-value < 2.2e-16
+## alternative hypothesis: true difference in means between group no and group yes is not equal to 0
+## 95 percent confidence interval:
+##  4.542448 5.164095
+## sample estimates:
+##  mean in group no mean in group yes 
+##          33.24875          28.39547
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Teste de Wilcoxon}
+\FunctionTok{wilcox.test}\NormalTok{(age\_years }\SpecialCharTok{\textasciitilde{}}\NormalTok{ pregnant\_SN, }\AttributeTok{data =}\NormalTok{ dados5)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Wilcoxon rank sum test with continuity correction
+## 
+## data:  age_years by pregnant_SN
+## W = 133719359, p-value < 2.2e-16
+## alternative hypothesis: true location shift is not equal to 0
+\end{verbatim}
+
+\hypertarget{ethnicity-cor}{%
+\paragraph{\texorpdfstring{{Ethnicity /Cor
+}}{Ethnicity /Cor }}\label{ethnicity-cor}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{questionr}\SpecialCharTok{::}\FunctionTok{freq}\NormalTok{(}
+\NormalTok{  dados5}\SpecialCharTok{$}\NormalTok{ethn,}
+  \AttributeTok{cum =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{total =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{na.last =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{valid =} \ConstantTok{FALSE}
+\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Frequency table of ethnicity"}\NormalTok{, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"HOLD\_position"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-27}Frequency table of ethnicity}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+  & n & \%\\
+\hline
+Black & 6319 & 5.2\\
+\hline
+Brown & 40810 & 33.6\\
+\hline
+Indigenous & 206 & 0.2\\
+\hline
+White & 38701 & 31.8\\
+\hline
+Yellow & 7263 & 6.0\\
+\hline
+NA & 28310 & 23.3\\
+\hline
+Total & 121609 & 100.0\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(ethn, pregnant\_SN, }\AttributeTok{prop =} \StringTok{"c"}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{, }\AttributeTok{chisq =} \ConstantTok{FALSE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Column Proportions  
+## ethn * pregnant_SN  
+## Data Frame: dados5  
+## 
+## ------------ ------------- ---------------- ---------------- ----------------
+##                pregnant_SN               no              yes            Total
+##         ethn                                                                 
+##        Black                  6197 (  6.8%)    122 (  8.11%)    6319 (  6.8%)
+##        Brown                 40057 ( 43.6%)    753 ( 50.03%)   40810 ( 43.7%)
+##   Indigenous                   205 (  0.2%)      1 (  0.07%)     206 (  0.2%)
+##        White                 38182 ( 41.6%)    519 ( 34.49%)   38701 ( 41.5%)
+##       Yellow                  7153 (  7.8%)    110 (  7.31%)    7263 (  7.8%)
+##        Total                 91794 (100.0%)   1505 (100.00%)   93299 (100.0%)
+## ------------ ------------- ---------------- ---------------- ----------------
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Exact\textquotesingle{}s Fisher Test}
+\FunctionTok{fisher.test}\NormalTok{(dados5}\SpecialCharTok{$}\NormalTok{ethn, dados5}\SpecialCharTok{$}\NormalTok{pregnant\_SN, }\AttributeTok{simulate.p.value =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Fisher's Exact Test for Count Data with simulated p-value (based on
+##  2000 replicates)
+## 
+## data:  dados5$ethn and dados5$pregnant_SN
+## p-value = 0.0004998
+## alternative hypothesis: two.sided
+\end{verbatim}
+
+\hypertarget{education}{%
+\paragraph{\texorpdfstring{{ Education
+}}{ Education }}\label{education}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{questionr}\SpecialCharTok{::}\FunctionTok{freq}\NormalTok{(}
+\NormalTok{  dados5}\SpecialCharTok{$}\NormalTok{esc\_resumida,}
+  \AttributeTok{cum =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{total =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{na.last =} \ConstantTok{FALSE}\NormalTok{,}
+  \AttributeTok{valid =} \ConstantTok{FALSE}
+\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Frequency table of education"}\NormalTok{, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{)  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"HOLD\_position"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-30}Frequency table of education}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+  & n & \%\\
+\hline
+No schooling & 192 & 0.2\\
+\hline
+Incomplete elementary & 8519 & 7.0\\
+\hline
+Elementary & 10864 & 8.9\\
+\hline
+Middle school & 38001 & 31.2\\
+\hline
+College & 20392 & 16.8\\
+\hline
+NA & 43641 & 35.9\\
+\hline
+Total & 121609 & 100.0\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(esc\_resumida, pregnant\_SN, }\AttributeTok{prop =} \StringTok{"c"}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{, }\AttributeTok{chisq =} \ConstantTok{FALSE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Column Proportions  
+## esc_resumida * pregnant_SN  
+## Data Frame: dados5  
+## 
+## ----------------------- ------------- ---------------- ---------------- ----------------
+##                           pregnant_SN               no              yes            Total
+##            esc_resumida                                                                 
+##            No schooling                   191 (  0.2%)      1 (  0.08%)     192 (  0.2%)
+##   Incomplete elementary                  8362 ( 10.9%)    157 ( 12.40%)    8519 ( 10.9%)
+##              Elementary                 10594 ( 13.8%)    270 ( 21.33%)   10864 ( 13.9%)
+##           Middle school                 37398 ( 48.8%)    603 ( 47.63%)   38001 ( 48.7%)
+##                 College                 20157 ( 26.3%)    235 ( 18.56%)   20392 ( 26.2%)
+##                   Total                 76702 (100.0%)   1266 (100.00%)   77968 (100.0%)
+## ----------------------- ------------- ---------------- ---------------- ----------------
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Exact\textquotesingle{}s Fisher Test}
+\FunctionTok{fisher.test}\NormalTok{(dados5}\SpecialCharTok{$}\NormalTok{esc\_resumida, dados5}\SpecialCharTok{$}\NormalTok{pregnant\_SN, }\AttributeTok{simulate.p.value =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Fisher's Exact Test for Count Data with simulated p-value (based on
+##  2000 replicates)
+## 
+## data:  dados5$esc_resumida and dados5$pregnant_SN
+## p-value = 0.0004998
+## alternative hypothesis: two.sided
+\end{verbatim}
+
+\hypertarget{symptoms-variables}{%
+\section{Symptoms variables}\label{symptoms-variables}}
+
+\hypertarget{febre}{%
+\paragraph{\texorpdfstring{{ Febre }}{ Febre }}\label{febre}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, fever, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * fever  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ------- --------------- --------------- -----------------
+##                 fever              no             yes             Total
+##   pregnant_SN                                                          
+##            no           72674 (60.7%)   47060 (39.3%)   119734 (100.0%)
+##           yes            1084 (64.6%)     595 (35.4%)     1679 (100.0%)
+##         Total           73758 (60.7%)   47655 (39.3%)   121413 (100.0%)
+## ------------- ------- --------------- --------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    10.2173     1    0.0014  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.85        0.77       0.94   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{respiratory-difficult}{%
+\paragraph{\texorpdfstring{{ Respiratory difficult
+}}{ Respiratory difficult }}\label{respiratory-difficult}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, RespDif, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * RespDif  
+## Data Frame: dados5  
+## 
+## 
+## ------------- --------- ---------------- --------------- -----------------
+##                 RespDif               no             yes             Total
+##   pregnant_SN                                                             
+##            no             102146 (85.3%)   17591 (14.7%)   119737 (100.0%)
+##           yes               1351 (80.5%)     328 (19.5%)     1679 (100.0%)
+##         Total             103497 (85.2%)   17919 (14.8%)   121416 (100.0%)
+## ------------- --------- ---------------- --------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    30.5002     1       0    
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     1.41        1.25       1.59   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{cought}{%
+\paragraph{\texorpdfstring{{ Cought }}{ Cought }}\label{cought}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, cough, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * cough  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ------- --------------- --------------- -----------------
+##                 cough              no             yes             Total
+##   pregnant_SN                                                          
+##            no           54473 (45.5%)   65268 (54.5%)   119741 (100.0%)
+##           yes             773 (46.1%)     905 (53.9%)     1678 (100.0%)
+##         Total           55246 (45.5%)   66173 (54.5%)   121419 (100.0%)
+## ------------- ------- --------------- --------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    0.1976      1    0.6567  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.98        0.89       1.08   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{coryza}{%
+\paragraph{\texorpdfstring{{ Coryza }}{ Coryza }}\label{coryza}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, coryza, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * coryza  
+## Data Frame: dados5  
+## 
+## 
+## ------------- -------- --------------- --------------- -----------------
+##                 coryza              no             yes             Total
+##   pregnant_SN                                                           
+##            no            70115 (58.6%)   49628 (41.4%)   119743 (100.0%)
+##           yes              901 (53.7%)     778 (46.3%)     1679 (100.0%)
+##         Total            71016 (58.5%)   50406 (41.5%)   121422 (100.0%)
+## ------------- -------- --------------- --------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    16.1175     1     1e-04  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     1.22        1.11       1.34   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{sore-throat}{%
+\paragraph{\texorpdfstring{{ Sore Throat
+}}{ Sore Throat }}\label{sore-throat}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, sore\_throat, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * sore_throat  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ------------- --------------- --------------- -----------------
+##                 sore_throat              no             yes             Total
+##   pregnant_SN                                                                
+##            no                 76350 (63.8%)   43393 (36.2%)   119743 (100.0%)
+##           yes                  1207 (71.9%)     472 (28.1%)     1679 (100.0%)
+##         Total                 77557 (63.9%)   43865 (36.1%)   121422 (100.0%)
+## ------------- ------------- --------------- --------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    47.0359     1       0    
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.69        0.62       0.77   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{diarrhea}{%
+\paragraph{\texorpdfstring{{ Diarrhea }}{ Diarrhea }}\label{diarrhea}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, diarrhea, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * diarrhea  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ---------- ---------------- --------------- -----------------
+##                 diarrhea               no             yes             Total
+##   pregnant_SN                                                              
+##            no              101028 (84.4%)   18714 (15.6%)   119742 (100.0%)
+##           yes                1485 (88.4%)     194 (11.6%)     1679 (100.0%)
+##         Total              102513 (84.4%)   18908 (15.6%)   121421 (100.0%)
+## ------------- ---------- ---------------- --------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    20.5953     1       0    
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.71        0.61       0.82   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{headache}{%
+\paragraph{\texorpdfstring{{ Headache }}{ Headache }}\label{headache}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, headache, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * headache  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ---------- --------------- --------------- -----------------
+##                 headache              no             yes             Total
+##   pregnant_SN                                                             
+##            no              47302 (39.5%)   72440 (60.5%)   119742 (100.0%)
+##           yes                736 (43.9%)     942 (56.1%)     1678 (100.0%)
+##         Total              48038 (39.6%)   73382 (60.4%)   121420 (100.0%)
+## ------------- ---------- --------------- --------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    12.9652     1     3e-04  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.84        0.76       0.92   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{comorbidities-variables}{%
+\section{Comorbidities variables}\label{comorbidities-variables}}
+
+\hypertarget{pneumologic}{%
+\paragraph{\texorpdfstring{{ Pneumologic
+}}{ Pneumologic }}\label{pneumologic}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, pneumo, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * pneumo  
+## Data Frame: dados5  
+## 
+## 
+## ------------- -------- ---------------- ------------- -----------------
+##                 pneumo               no           yes             Total
+##   pregnant_SN                                                          
+##            no            116739 (97.5%)   2969 (2.5%)   119708 (100.0%)
+##           yes              1644 (97.9%)     35 (2.1%)     1679 (100.0%)
+##         Total            118383 (97.5%)   3004 (2.5%)   121387 (100.0%)
+## ------------- -------- ---------------- ------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    0.9161      1    0.3385  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.84        0.60       1.17   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{cardiovascular}{%
+\paragraph{\texorpdfstring{{ Cardiovascular
+}}{ Cardiovascular }}\label{cardiovascular}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, cardio, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * cardio  
+## Data Frame: dados5  
+## 
+## 
+## ------------- -------- ---------------- ------------- -----------------
+##                 cardio               no           yes             Total
+##   pregnant_SN                                                          
+##            no            111793 (93.4%)   7926 (6.6%)   119719 (100.0%)
+##           yes              1600 (95.3%)     79 (4.7%)     1679 (100.0%)
+##         Total            113393 (93.4%)   8005 (6.6%)   121398 (100.0%)
+## ------------- -------- ---------------- ------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    9.5534      1     0.002  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.70        0.55       0.87   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{renal}{%
+\paragraph{\texorpdfstring{{ Renal }}{ Renal }}\label{renal}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, renal,}\AttributeTok{chisq=}\ConstantTok{FALSE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * renal  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ------- ----------------- ------------ -----------------
+##                 renal                no          yes             Total
+##   pregnant_SN                                                         
+##            no           119468 ( 99.8%)   250 (0.2%)   119718 (100.0%)
+##           yes             1677 ( 99.9%)     2 (0.1%)     1679 (100.0%)
+##         Total           121145 ( 99.8%)   252 (0.2%)   121397 (100.0%)
+## ------------- ------- ----------------- ------------ -----------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.57        0.14       2.29   
+## ----------------------------------
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Exact\textquotesingle{}s Fisher Test}
+\FunctionTok{fisher.test}\NormalTok{(dados5}\SpecialCharTok{$}\NormalTok{pregnant\_SN, dados5}\SpecialCharTok{$}\NormalTok{renal, }\AttributeTok{simulate.p.value =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Fisher's Exact Test for Count Data
+## 
+## data:  dados5$pregnant_SN and dados5$renal
+## p-value = 0.5924
+## alternative hypothesis: true odds ratio is not equal to 1
+## 95 percent confidence interval:
+##  0.06858209 2.08361404
+## sample estimates:
+## odds ratio 
+##  0.5699148
+\end{verbatim}
+
+\hypertarget{diabetes}{%
+\paragraph{\texorpdfstring{{ Diabetes }}{ Diabetes }}\label{diabetes}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, diabetes, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * diabetes  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ---------- ---------------- ------------- -----------------
+##                 diabetes              Não           yes             Total
+##   pregnant_SN                                                            
+##            no              117405 (98.1%)   2312 (1.9%)   119717 (100.0%)
+##           yes                1629 (97.0%)     50 (3.0%)     1679 (100.0%)
+##         Total              119034 (98.1%)   2362 (1.9%)   121396 (100.0%)
+## ------------- ---------- ---------------- ------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    8.9684      1    0.0027  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     1.56        1.17       2.07   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{smoker}{%
+\paragraph{\texorpdfstring{{ Smoker }}{ Smoker }}\label{smoker}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, smoker, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * smoker  
+## Data Frame: dados5  
+## 
+## 
+## ------------- -------- ---------------- ------------- -----------------
+##                 smoker               no           yes             Total
+##   pregnant_SN                                                          
+##            no            118711 (99.2%)   1003 (0.8%)   119714 (100.0%)
+##           yes              1668 (99.3%)     11 (0.7%)     1679 (100.0%)
+##         Total            120379 (99.2%)   1014 (0.8%)   121393 (100.0%)
+## ------------- -------- ---------------- ------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    0.4648      1    0.4954  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.78        0.43       1.42   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{obesity}{%
+\paragraph{\texorpdfstring{{ Obesity }}{ Obesity }}\label{obesity}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, obesity, }\AttributeTok{chisq=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * obesity  
+## Data Frame: dados5  
+## 
+## 
+## ------------- --------- ---------------- ------------- -----------------
+##                 obesity               no           yes             Total
+##   pregnant_SN                                                           
+##            no             116836 (97.6%)   2813 (2.4%)   119649 (100.0%)
+##           yes               1653 (98.5%)     25 (1.5%)     1678 (100.0%)
+##         Total             118489 (97.7%)   2838 (2.3%)   121327 (100.0%)
+## ------------- --------- ---------------- ------------- -----------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##    5.0018      1    0.0253  
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     0.63        0.42       0.93   
+## ----------------------------------
+\end{verbatim}
+
+\hypertarget{outcome-analysis}{%
+\section{Outcome analysis}\label{outcome-analysis}}
+
+\hypertarget{hospitalyzed}{%
+\paragraph{\texorpdfstring{{ Hospitalyzed
+}}{ Hospitalyzed }}\label{hospitalyzed}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, hospi, }\AttributeTok{prop =} \StringTok{"r"}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{, }\AttributeTok{chisq =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * hospi  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ------- --------------- ------------ ----------------
+##                 hospi              no          yes            Total
+##   pregnant_SN                                                      
+##            no           53076 (98.8%)   645 (1.2%)   53721 (100.0%)
+##           yes             974 (97.9%)    21 (2.1%)     995 (100.0%)
+##         Total           54050 (98.8%)   666 (1.2%)   54716 (100.0%)
+## ------------- ------- --------------- ------------ ----------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     1.77        1.14       2.75   
+## ----------------------------------
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fisher.test}\NormalTok{(dados5}\SpecialCharTok{$}\NormalTok{hospi, dados5}\SpecialCharTok{$}\NormalTok{pregnant\_SN, }\AttributeTok{simulate.p.value =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Fisher's Exact Test for Count Data
+## 
+## data:  dados5$hospi and dados5$pregnant_SN
+## p-value = 0.01794
+## alternative hypothesis: true odds ratio is not equal to 1
+## 95 percent confidence interval:
+##  1.085658 2.750818
+## sample estimates:
+## odds ratio 
+##   1.774155
+\end{verbatim}
+
+\hypertarget{evolution}{%
+\paragraph{\texorpdfstring{{ Evolution
+}}{ Evolution }}\label{evolution}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, evolution, }\AttributeTok{prop =} \StringTok{"r"}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{, }\AttributeTok{chisq =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * evolution  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ----------- ----------------- ------------ -----------------
+##                 evolution              cure        death             Total
+##   pregnant_SN                                                             
+##            no               119452 ( 99.6%)   478 (0.4%)   119930 (100.0%)
+##           yes                 1668 ( 99.3%)    11 (0.7%)     1679 (100.0%)
+##         Total               121120 ( 99.6%)   489 (0.4%)   121609 (100.0%)
+## ------------- ----------- ----------------- ------------ -----------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     1.65        0.90       3.00   
+## ----------------------------------
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Exact\textquotesingle{}s Fisher Test}
+\FunctionTok{fisher.test}\NormalTok{( dados5}\SpecialCharTok{$}\NormalTok{pregnant\_SN, dados5}\SpecialCharTok{$}\NormalTok{evolution, }\AttributeTok{simulate.p.value =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Fisher's Exact Test for Count Data
+## 
+## data:  dados5$pregnant_SN and dados5$evolution
+## p-value = 0.1146
+## alternative hypothesis: true odds ratio is not equal to 1
+## 95 percent confidence interval:
+##  0.8155371 2.9834308
+## sample estimates:
+## odds ratio 
+##   1.647998
+\end{verbatim}
+
+\hypertarget{propensity-score-matching}{%
+\section{Propensity Score Matching}\label{propensity-score-matching}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Analyzing the balance between the groups pregnant and non{-}pregnant}
+\FunctionTok{bal.tab}\NormalTok{(pregnant\_SN }\SpecialCharTok{\textasciitilde{}}\NormalTok{ age\_group }\SpecialCharTok{+}\NormalTok{ esc\_resumida }\SpecialCharTok{+}\NormalTok{ ethn }\SpecialCharTok{+}\NormalTok{ cardio }\SpecialCharTok{+}\NormalTok{ diabetes }\SpecialCharTok{+}\NormalTok{ obesity, }
+        \AttributeTok{data =}\NormalTok{ dados5, }\AttributeTok{estimand =} \StringTok{"ATE"}\NormalTok{, }\AttributeTok{m.threshold =}\NormalTok{ .}\DecValTok{05}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Balance Measures
+##                                      Type Diff.Un      M.Threshold.Un
+## age_group_10 - 19                  Binary -0.0056     Balanced, <0.05
+## age_group_20 - 29                  Binary  0.2237 Not Balanced, >0.05
+## age_group_30 - 39                  Binary  0.0360     Balanced, <0.05
+## age_group_40 - 49                  Binary -0.2541 Not Balanced, >0.05
+## esc_resumida_No schooling          Binary -0.0017     Balanced, <0.05
+## esc_resumida_Incomplete elementary Binary  0.0150     Balanced, <0.05
+## esc_resumida_Elementary            Binary  0.0752 Not Balanced, >0.05
+## esc_resumida_Middle school         Binary -0.0113     Balanced, <0.05
+## esc_resumida_College               Binary -0.0772 Not Balanced, >0.05
+## esc_resumida:<NA>                  Binary -0.1145 Not Balanced, >0.05
+## ethn_Black                         Binary  0.0136     Balanced, <0.05
+## ethn_Brown                         Binary  0.0640 Not Balanced, >0.05
+## ethn_Indigenous                    Binary -0.0016     Balanced, <0.05
+## ethn_White                         Binary -0.0711 Not Balanced, >0.05
+## ethn_Yellow                        Binary -0.0048     Balanced, <0.05
+## ethn:<NA>                          Binary -0.1310 Not Balanced, >0.05
+## cardio_yes                         Binary -0.0192     Balanced, <0.05
+## cardio:<NA>                        Binary -0.0018     Balanced, <0.05
+## diabetes_yes                       Binary  0.0105     Balanced, <0.05
+## diabetes:<NA>                      Binary -0.0018     Balanced, <0.05
+## obesity_yes                        Binary -0.0086     Balanced, <0.05
+## obesity:<NA>                       Binary -0.0017     Balanced, <0.05
+## 
+## Balance tally for mean differences
+##                     count
+## Balanced, <0.05        14
+## Not Balanced, >0.05     8
+## 
+## Variable with the greatest mean difference
+##           Variable Diff.Un      M.Threshold.Un
+##  age_group_40 - 49 -0.2541 Not Balanced, >0.05
+## 
+## Sample sizes
+##         no  yes
+## All 119930 1679
+\end{verbatim}
+
+\#\#Obteining the weights
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ajuste }\OtherTok{\textless{}{-}} \FunctionTok{weightit}\NormalTok{(pregnant\_SN }\SpecialCharTok{\textasciitilde{}}\NormalTok{ age\_group }\SpecialCharTok{+}\NormalTok{ esc\_resumida }\SpecialCharTok{+}\NormalTok{ ethn }\SpecialCharTok{+}\NormalTok{ cardio }\SpecialCharTok{+}\NormalTok{ diabetes }\SpecialCharTok{+}\NormalTok{ obesity, }
+                   \AttributeTok{use.mlogit =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{data =}\NormalTok{ dados5, }\AttributeTok{method =} \StringTok{"ps"}\NormalTok{, }\AttributeTok{estimand =} \StringTok{"ATE"}\NormalTok{)}
+\FunctionTok{bal.tab}\NormalTok{(ajuste, }\AttributeTok{m.threshold =} \FloatTok{0.05}\NormalTok{, }\AttributeTok{disp.v.ratio =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{estimand =} \StringTok{"ATE"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Call
+##  weightit(formula = pregnant_SN ~ age_group + esc_resumida + ethn + 
+##     cardio + diabetes + obesity, data = dados5, method = "ps", 
+##     estimand = "ATE", use.mlogit = FALSE)
+## 
+## Balance Measures
+##                                        Type Diff.Adj     M.Threshold
+## prop.score                         Distance  -0.0117 Balanced, <0.05
+## age_group_10 - 19                    Binary  -0.0058 Balanced, <0.05
+## age_group_20 - 29                    Binary  -0.0142 Balanced, <0.05
+## age_group_30 - 39                    Binary   0.0116 Balanced, <0.05
+## age_group_40 - 49                    Binary   0.0085 Balanced, <0.05
+## esc_resumida_No schooling            Binary  -0.0018 Balanced, <0.05
+## esc_resumida_Incomplete elementary   Binary  -0.0264 Balanced, <0.05
+## esc_resumida_Elementary              Binary  -0.0121 Balanced, <0.05
+## esc_resumida_Middle school           Binary   0.0076 Balanced, <0.05
+## esc_resumida_College                 Binary   0.0327 Balanced, <0.05
+## esc_resumida:<NA>                    Binary  -0.0252 Balanced, <0.05
+## ethn_Black                           Binary   0.0082 Balanced, <0.05
+## ethn_Brown                           Binary   0.0164 Balanced, <0.05
+## ethn_Indigenous                      Binary  -0.0007 Balanced, <0.05
+## ethn_White                           Binary  -0.0053 Balanced, <0.05
+## ethn_Yellow                          Binary  -0.0185 Balanced, <0.05
+## ethn:<NA>                            Binary  -0.0368 Balanced, <0.05
+## cardio_yes                           Binary  -0.0237 Balanced, <0.05
+## cardio:<NA>                          Binary  -0.0017 Balanced, <0.05
+## diabetes_yes                         Binary  -0.0048 Balanced, <0.05
+## diabetes:<NA>                        Binary  -0.0018 Balanced, <0.05
+## obesity_yes                          Binary   0.0107 Balanced, <0.05
+## obesity:<NA>                         Binary  -0.0017 Balanced, <0.05
+##                                    V.Ratio.Adj
+## prop.score                              1.0473
+## age_group_10 - 19                            .
+## age_group_20 - 29                            .
+## age_group_30 - 39                            .
+## age_group_40 - 49                            .
+## esc_resumida_No schooling                    .
+## esc_resumida_Incomplete elementary           .
+## esc_resumida_Elementary                      .
+## esc_resumida_Middle school                   .
+## esc_resumida_College                         .
+## esc_resumida:<NA>                            .
+## ethn_Black                                   .
+## ethn_Brown                                   .
+## ethn_Indigenous                              .
+## ethn_White                                   .
+## ethn_Yellow                                  .
+## ethn:<NA>                                    .
+## cardio_yes                                   .
+## cardio:<NA>                                  .
+## diabetes_yes                                 .
+## diabetes:<NA>                                .
+## obesity_yes                                  .
+## obesity:<NA>                                 .
+## 
+## Balance tally for mean differences
+##                     count
+## Balanced, <0.05        23
+## Not Balanced, >0.05     0
+## 
+## Variable with the greatest mean difference
+##   Variable Diff.Adj     M.Threshold
+##  ethn:<NA>  -0.0368 Balanced, <0.05
+## 
+## Effective sample sizes
+##                no     yes
+## Unadjusted 119930 1679.  
+## Adjusted   119912  495.99
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dados5}\SpecialCharTok{$}\NormalTok{weight }\OtherTok{\textless{}{-}}\NormalTok{ ajuste}\SpecialCharTok{$}\NormalTok{weights}
+\end{Highlighting}
+\end{Shaded}
+
+\#\#After-PSM
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, hospi, }\AttributeTok{prop =} \StringTok{"r"}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{, }
+                    \AttributeTok{chisq =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{weights =}\NormalTok{ weight))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * hospi  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ------- ------------------ --------------- -------------------
+##                 hospi                 no             yes               Total
+##   pregnant_SN                                                               
+##            no            53880.5 (98.8%)    652.7 (1.2%)    54533.2 (100.0%)
+##           yes            67473.0 (96.0%)   2794.0 (4.0%)    70267.0 (100.0%)
+##         Total           121353.5 (97.2%)   3446.7 (2.8%)   124800.2 (100.0%)
+## ------------- ------- ------------------ --------------- -------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     3.42        3.14       3.73   
+## ----------------------------------
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{with}\NormalTok{(dados5, }\FunctionTok{ctable}\NormalTok{(pregnant\_SN, evolution, }\AttributeTok{prop=}\StringTok{"r"}\NormalTok{, }\AttributeTok{OR=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{useNA =} \StringTok{"no"}\NormalTok{, }
+                    \AttributeTok{chisq =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{weights =}\NormalTok{ weight))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Cross-Tabulation, Row Proportions  
+## pregnant_SN * evolution  
+## Data Frame: dados5  
+## 
+## 
+## ------------- ----------- ------------------- --------------- -------------------
+##                 evolution                cure           death               Total
+##   pregnant_SN                                                                    
+##            no               121125.1 ( 99.6%)    483.1 (0.4%)   121608.3 (100.0%)
+##           yes               121513.4 ( 98.7%)   1599.1 (1.3%)   123112.5 (100.0%)
+##         Total               242638.5 ( 99.1%)   2082.3 (0.9%)   244720.8 (100.0%)
+## ------------- ----------- ------------------- --------------- -------------------
+## 
+## ----------------------------
+##  Chi.squared   df   p.value 
+## ------------- ---- ---------
+##   588.4437     1       0    
+## ----------------------------
+## 
+## ----------------------------------
+##  Odds Ratio   Lo - 95%   Hi - 95% 
+## ------------ ---------- ----------
+##     3.30        2.98       3.65   
+## ----------------------------------
+\end{verbatim}
+
+\end{document}
